@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Menù Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Nunito+Sans:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;600&family=Noto+Sans+SC:wght@400;600&family=Noto+Sans+JP:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E6D6BD; --paper-deep:#D9C5A6; --card:#FAF4E6;
+    --ink:#2F261C; --ink-soft:#7A6A55;
+    --green:#44563B; --green-deep:#2C3925;
+    --brown:#8B6845; --taupe:#BBA482;
+    --bordeaux:#6C1E2D; --bordeaux-dark:#531624;
+    --line:#D3BF9D;
+    --shadow:0 10px 30px rgba(47,38,28,0.14);
+    --ease:cubic-bezier(.22,.8,.3,1);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:"Nunito Sans","Noto Sans Arabic","Noto Sans SC","Noto Sans JP",system-ui,sans-serif;
+    line-height:1.5; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  .serif{font-family:"Cormorant Garamond",Georgia,serif;}
+  .progress{position:fixed; top:0; left:0; height:3px; width:0; background:var(--bordeaux); z-index:50; transition:width .08s linear;}
+  .demo-banner{background:var(--bordeaux); color:#F4E9DA; text-align:center; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; padding:7px 16px;}
+
+  /* hero */
+  .hero{
+    position:relative;
+    background:radial-gradient(900px 400px at 85% -10%, rgba(255,255,255,.10), transparent 60%), linear-gradient(165deg, var(--green) 0%, var(--green-deep) 100%);
+    color:#F1EBDA; padding:56px 20px 36px; text-align:center;
+  }
+  .hero::after{content:""; position:absolute; inset:auto 0 0 0; height:5px; background:linear-gradient(90deg, var(--bordeaux) 0 40%, var(--taupe) 40% 70%, var(--bordeaux) 70%);}
+  .hero .brand{font-size:clamp(3rem,13vw,4.8rem); font-weight:500; line-height:.95; opacity:0; transform:translateY(18px); animation:rise .7s var(--ease) .1s forwards;}
+  .hero .brand em{font-style:italic; color:var(--taupe);}
+  .hero .tagline{margin-top:14px; font-size:1.05rem; color:#D5CEB8; font-style:italic; opacity:0; transform:translateY(14px); animation:rise .7s var(--ease) .3s forwards;}
+  .hero .meta{margin-top:18px; font-size:.82rem; color:#B6AF95; display:flex; justify-content:center; gap:14px; flex-wrap:wrap; opacity:0; animation:fade .6s ease .55s forwards;}
+  .hero .hint{margin-top:28px; font-size:.78rem; color:#B6AF95; letter-spacing:.04em; opacity:0; animation:fade .6s ease .9s forwards;}
+  .hero .hint i{display:inline-block; animation:bob 1.6s ease-in-out infinite; font-style:normal;}
+  @keyframes rise{to{opacity:1; transform:none;}}
+  @keyframes fade{to{opacity:1;}}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+
+  /* lingua — fisso, fuori da qualsiasi contenitore */
+  .lang-wrap{position:fixed; top:40px; inset-inline-end:14px; z-index:60;}
+  .lang-btn{
+    font:inherit; font-size:.8rem; font-weight:700; letter-spacing:.06em; cursor:pointer;
+    background:var(--green-deep); border:1px solid rgba(241,235,218,.35); color:#F1EBDA;
+    border-radius:999px; padding:8px 14px; display:flex; align-items:center; gap:7px; box-shadow:var(--shadow);
+  }
+  .lang-btn svg{width:14px; height:14px; transition:transform .25s var(--ease);}
+  .lang-btn[aria-expanded="true"] svg{transform:rotate(180deg);}
+  .lang-menu{
+    position:absolute; top:calc(100% + 8px); inset-inline-end:0;
+    background:var(--card); color:var(--ink); border-radius:14px; box-shadow:var(--shadow);
+    padding:6px; min-width:180px; max-height:min(62vh,460px); overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain;
+    transform-origin:top right; transform:scale(.92); opacity:0; pointer-events:none;
+    transition:transform .22s var(--ease), opacity .18s;
+  }
+  [dir="rtl"] .lang-menu{transform-origin:top left;}
+  .lang-menu.open{transform:scale(1); opacity:1; pointer-events:auto;}
+  .lang-menu button{
+    width:100%; text-align:start; font:inherit; font-size:.92rem; cursor:pointer;
+    background:none; border:0; color:var(--ink); padding:10px 12px; border-radius:9px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .lang-menu button:hover{background:var(--paper);}
+  .lang-menu button[aria-pressed="true"]{color:var(--bordeaux); font-weight:700;}
+  .lang-menu button[aria-pressed="true"]::after{content:"✓";}
+
+  /* nav */
+  .nav{position:sticky; top:0; z-index:6; background:rgba(230,214,189,.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); transition:box-shadow .3s;}
+  .nav.scrolled{box-shadow:0 6px 20px rgba(47,38,28,.10);}
+  .nav-inner{max-width:760px; margin:0 auto; padding:0 12px;}
+  .tabs{position:relative; display:flex; gap:4px; overflow-x:auto; scrollbar-width:none; padding:10px 4px 0;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tabs a{position:relative; color:var(--ink-soft); text-decoration:none; font-weight:700; font-size:.88rem; padding:8px 14px 12px; white-space:nowrap; transition:color .2s;}
+  .tabs a.active{color:var(--green-deep);}
+  .tab-ink{position:absolute; bottom:0; height:3px; background:var(--bordeaux); border-radius:3px 3px 0 0; transition:left .35s var(--ease), width .35s var(--ease);}
+  .filters{display:flex; gap:7px; overflow-x:auto; scrollbar-width:none; padding:10px 4px 12px;}
+  .filters::-webkit-scrollbar{display:none;}
+  .chip{
+    font:inherit; font-size:.82rem; font-weight:600; cursor:pointer; white-space:nowrap;
+    background:var(--card); border:1px solid var(--line); color:var(--ink-soft);
+    border-radius:999px; padding:7px 14px; display:flex; align-items:center; gap:7px;
+    transition:background .25s, color .25s, border-color .25s, transform .15s;
+  }
+  .chip:active{transform:scale(.95);}
+  .chip .dot{width:7px; height:7px; border-radius:50%; background:var(--taupe); transition:transform .3s var(--ease);}
+  .chip[data-f="sweet"] .dot{background:var(--bordeaux);}
+  .chip[data-f="savory"] .dot{background:var(--brown);}
+  .chip[data-f="fit"] .dot{background:var(--green);}
+  .chip[data-f="vegan"] .dot{background:#5E7A3C;}
+  .chip .n{font-size:.68rem; background:var(--paper-deep); color:var(--ink-soft); border-radius:999px; padding:1px 7px; min-width:20px; text-align:center;}
+  .chip[aria-pressed="true"]{background:var(--green-deep); border-color:var(--green-deep); color:#F1EBDA;}
+  .chip[aria-pressed="true"] .dot{background:#F1EBDA; transform:scale(1.4);}
+  .chip[aria-pressed="true"] .n{background:rgba(255,255,255,.18); color:#F1EBDA;}
+
+  /* contenuto */
+  main{max-width:760px; margin:0 auto; padding:8px 16px 40px;}
+  section{padding-top:38px; scroll-margin-top:110px;}
+  .sec-head{display:flex; align-items:baseline; gap:14px; margin-bottom:6px;}
+  .sec-head h2{font-size:2rem; font-weight:600; color:var(--green-deep); line-height:1.05;}
+  .sec-head .count{font-size:.78rem; color:var(--taupe); font-weight:700;}
+  .sec-head::after{content:""; flex:1; height:1px; background:linear-gradient(90deg,var(--bordeaux) 0 28px, var(--line) 28px);}
+  .sec-note{color:var(--ink-soft); font-size:1.05rem; font-style:italic; margin-bottom:16px;}
+
+  .grid{display:grid; gap:12px;}
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; position:relative;
+    opacity:0; transform:translateY(16px);
+    transition:opacity .5s var(--ease), transform .5s var(--ease), box-shadow .25s, border-color .25s;
+  }
+  .card.in{opacity:1; transform:none;}
+  .card:hover{box-shadow:var(--shadow); border-color:var(--taupe);}
+  .card .head{display:grid; grid-template-columns:54px 1fr auto; gap:12px; align-items:center; padding:13px 14px; cursor:pointer; user-select:none;}
+  body[data-photos="off"] .card .head{grid-template-columns:1fr auto;}
+  .card .thumb{width:54px; height:54px; border-radius:14px; background:var(--paper); display:flex; align-items:center; justify-content:center; font-size:1.7rem; border:1px solid var(--line); transition:transform .3s var(--ease);}
+  body[data-photos="off"] .thumb{display:none;}
+  .card.open .thumb{transform:scale(1.06) rotate(-4deg);}
+  .card .title{font-weight:700; font-size:1rem; line-height:1.25;}
+  .card .title .v{font-weight:400; color:var(--ink-soft);}
+  .card .sub{color:var(--ink-soft); font-size:.8rem; margin-top:3px; display:flex; gap:6px; flex-wrap:wrap;}
+  .tag{font-size:.66rem; font-weight:700; letter-spacing:.04em; border-radius:4px; padding:1px 6px; border:1px solid var(--line); color:var(--ink-soft); background:var(--paper);}
+  .tag.t-sweet{color:var(--bordeaux); border-color:var(--bordeaux);}
+  .tag.t-savory{color:var(--brown); border-color:var(--brown);}
+  .tag.t-fit{color:var(--green); border-color:var(--green);}
+  .tag.t-gf{color:var(--green-deep); border-color:var(--taupe);}
+  .tag.t-vegan{color:#4C6630; border-color:#5E7A3C;}
+  .card .price{font-family:"Cormorant Garamond",serif; font-weight:600; font-size:1.3rem; color:var(--bordeaux); white-space:nowrap; display:flex; flex-direction:column; align-items:flex-end; gap:2px;}
+  .card .price .p2{font-size:.95rem; color:var(--brown);}
+  .card .chev{width:18px; height:18px; color:var(--taupe); transition:transform .3s var(--ease);}
+  .card.open .chev{transform:rotate(180deg); color:var(--bordeaux);}
+  .card .body{max-height:0; overflow:hidden; transition:max-height .45s var(--ease); border-top:1px solid transparent;}
+  .card.open .body{border-top-color:var(--line);}
+  .card .body-in{padding:12px 14px 16px;}
+  .ing{display:flex; flex-wrap:wrap; gap:7px;}
+  .ing span{background:var(--paper); border:1px solid var(--line); border-radius:999px; padding:4px 11px; font-size:.82rem; opacity:0; transform:translateY(6px); transition:opacity .35s var(--ease), transform .35s var(--ease);}
+  .card.open .ing span, .sheet.open .ing span{opacity:1; transform:none;}
+  .allerg{margin-top:12px; font-size:.84rem; display:flex; align-items:flex-start; gap:8px; color:var(--bordeaux); background:rgba(108,30,45,.07); border-radius:10px; padding:9px 11px;}
+  .allerg.none{color:var(--green); background:rgba(68,86,59,.09);}
+  .allerg b{font-weight:700; white-space:nowrap;}
+
+  .nut{margin-top:14px; background:rgba(68,86,59,.07); border:1px solid rgba(68,86,59,.18); border-radius:12px; padding:11px 12px;}
+  .nut-top{display:flex; align-items:baseline; justify-content:space-between; gap:10px;}
+  .nut-top .kcal{font-family:"Cormorant Garamond",serif; font-size:1.6rem; font-weight:600; color:var(--green-deep); line-height:1;}
+  .nut-top .kcal small{font-family:"Nunito Sans",sans-serif; font-size:.72rem; font-weight:700; color:var(--ink-soft); margin-inline-start:4px;}
+  .nut-top .per{font-size:.72rem; color:var(--ink-soft); font-style:italic;}
+  .macros{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px;}
+  .macro{font-size:.74rem; color:var(--ink-soft);}
+  .macro b{display:block; color:var(--ink); font-size:.9rem; font-weight:700;}
+  .bar{height:5px; border-radius:5px; background:var(--paper-deep); margin-top:5px; overflow:hidden;}
+  .bar i{display:block; height:100%; width:0; border-radius:5px; transition:width .7s var(--ease) .15s;}
+  .macro.pro .bar i{background:var(--green);}
+  .macro.carb .bar i{background:var(--brown);}
+  .macro.fat .bar i{background:var(--bordeaux);}
+  .card.open .bar i, .sheet.open .bar i{width:var(--w);}
+  .nut-note{font-size:.7rem; color:var(--ink-soft); margin-top:8px; font-style:italic;}
+
+  .more{margin-top:12px; font:inherit; font-size:.82rem; font-weight:700; cursor:pointer; background:none; border:0; color:var(--green-deep); padding:0; border-bottom:1.5px solid var(--taupe); transition:border-color .2s, color .2s;}
+  .more:hover{color:var(--bordeaux); border-color:var(--bordeaux);}
+  .empty{display:none; text-align:center; color:var(--ink-soft); padding:48px 16px; font-style:italic;}
+  .empty.show{display:block;}
+  .legend{margin-top:44px; padding:18px 20px; border-radius:16px; background:var(--card); border:1px dashed var(--taupe); color:var(--ink-soft); font-size:.86rem; line-height:1.6;}
+  footer{text-align:center; color:var(--ink-soft); font-size:.8rem; padding:24px 16px 56px;}
+  footer .proposal{margin-top:6px; color:var(--bordeaux); font-weight:600;}
+
+  .toast{position:fixed; bottom:24px; left:50%; transform:translate(-50%,30px); background:var(--green-deep); color:#F1EBDA; font-size:.85rem; font-weight:600; padding:10px 18px; border-radius:999px; box-shadow:var(--shadow); z-index:40; opacity:0; pointer-events:none; transition:opacity .25s, transform .35s var(--ease);}
+  .toast.show{opacity:1; transform:translate(-50%,0);}
+
+  .overlay{position:fixed; inset:0; background:rgba(44,36,27,.5); backdrop-filter:blur(2px); opacity:0; pointer-events:none; transition:opacity .3s; z-index:30;}
+  .overlay.open{opacity:1; pointer-events:auto;}
+  .sheet{position:fixed; inset-inline:0; bottom:0; z-index:31; background:var(--card); border-radius:24px 24px 0 0; max-width:760px; margin:0 auto; padding:14px 22px 36px; transform:translateY(105%); transition:transform .42s var(--ease); max-height:86vh; overflow-y:auto; box-shadow:0 -10px 40px rgba(0,0,0,.2);}
+  .sheet.open{transform:translateY(0);}
+  .sheet .grab{width:42px; height:5px; border-radius:5px; background:var(--line); margin:0 auto 14px;}
+  .sheet .photo{height:180px; border-radius:16px; background:linear-gradient(135deg, var(--paper) 0%, var(--paper-deep) 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:1px solid var(--line); font-size:3.4rem;}
+  body[data-photos="off"] .sheet .photo{display:none;}
+  .sheet .photo small{font-size:.74rem; color:var(--ink-soft); font-style:italic;}
+  .sheet h3{font-size:1.9rem; font-weight:600; color:var(--green-deep); margin-top:16px; line-height:1.1;}
+  .sheet h3 .v{font-weight:500; font-style:italic; color:var(--ink-soft); font-size:1.3rem;}
+  .sheet .s-price{font-family:"Cormorant Garamond",serif; font-size:1.6rem; font-weight:600; color:var(--bordeaux); margin-top:2px;}
+  .sheet .s-tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;}
+  .sheet h4{font-size:.74rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--brown); margin-top:22px; padding-bottom:6px; border-bottom:1px solid var(--line);}
+  .sheet .ing{margin-top:12px;}
+  .sheet .close{position:absolute; top:14px; inset-inline-end:14px; width:34px; height:34px; border-radius:50%; font:inherit; cursor:pointer; background:var(--paper); border:1px solid var(--line); color:var(--ink-soft); display:flex; align-items:center; justify-content:center; font-size:1rem;}
+
+  @media (prefers-reduced-motion: reduce){ *{animation:none !important; transition:none !important;} .card,.ing span{opacity:1; transform:none;} }
+  @media (min-width:640px){ .grid{grid-template-columns:1fr 1fr;} }
+</style>
+</head>
+<body data-photos="on">
+
+<div class="progress" id="progress"></div>
+<div class="demo-banner" data-i18n="demoBanner"></div>
+
+<div class="lang-wrap">
+  <button class="lang-btn" id="lang-btn" aria-expanded="false" aria-haspopup="listbox"><span id="lang-cur">IT</span><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 8l5 5 5-5"/></svg></button>
+  <div class="lang-menu" id="lang-menu" role="listbox"></div>
+</div>
+
+<header class="hero">
+  <div class="brand serif">Po’<em>Stò</em></div>
+  <p class="tagline serif" data-i18n="tagline"></p>
+  <div class="meta"><span>📍 Piazza Daniele Manin 4, Pisa</span><span>🕖 <span data-i18n="hours"></span></span></div>
+  <p class="hint"><span data-i18n="scrollHint"></span> <i>↓</i></p>
+</header>
+
+<div class="nav" id="nav"><div class="nav-inner">
+  <div class="tabs" id="tabs">
+    <a href="#bakery" data-sec="bakery" data-i18n="catBakery"></a>
+    <a href="#salato" data-sec="salato" data-i18n="catSavory"></a>
+    <a href="#caffetteria" data-sec="caffetteria" data-i18n="catCoffee"></a>
+    <span class="tab-ink" id="tab-ink"></span>
+  </div>
+  <div class="filters" id="filters">
+    <button class="chip" data-f="all" aria-pressed="true"><span data-i18n="fAll"></span><span class="n"></span></button>
+    <button class="chip" data-f="sweet" aria-pressed="false"><span class="dot"></span><span data-i18n="fSweet"></span><span class="n"></span></button>
+    <button class="chip" data-f="savory" aria-pressed="false"><span class="dot"></span><span data-i18n="fSavory"></span><span class="n"></span></button>
+    <button class="chip" data-f="fit" aria-pressed="false"><span class="dot"></span><span data-i18n="fFit"></span><span class="n"></span></button>
+    <button class="chip" data-f="gf" aria-pressed="false"><span class="dot"></span><span data-i18n="fGf"></span><span class="n"></span></button>
+    <button class="chip" data-f="vegan" aria-pressed="false"><span class="dot"></span><span data-i18n="fVegan"></span><span class="n"></span></button>
+  </div>
+</div></div>
+
+<main id="menu"></main>
+<p class="empty" id="empty" data-i18n="emptyText"></p>
+
+<footer><div data-i18n="footerNote"></div><div class="proposal" data-i18n="proposalNote"></div></footer>
+<div class="toast" id="toast"></div>
+<div class="overlay" id="overlay"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <div class="grab"></div>
+  <button class="close" id="sheet-close" aria-label="Chiudi">✕</button>
+  <div class="photo"><span id="sheet-emoji"></span><small data-i18n="photoNote"></small></div>
+  <h3 class="serif" id="sheet-title"></h3>
+  <div class="s-price" id="sheet-price"></div>
+  <div class="s-tags" id="sheet-tags"></div>
+  <h4 data-i18n="ingredientsLabel"></h4>
+  <div class="ing" id="sheet-ings"></div>
+  <h4 data-i18n="allergensLabel"></h4>
+  <div class="allerg" id="sheet-allergens"></div>
+  <div id="sheet-nut"></div>
+</div>
+
+<script>
+const LANGS=[["it","Italiano"],["en","English"],["fr","Français"],["de","Deutsch"],["es","Español"],["pt","Português"],["ru","Русский"],["ar","العربية"],["zh","中文"],["ja","日本語"]];
+
+const UI={
+ it:{demoBanner:"Demo non ufficiale — proposta dimostrativa, prezzi indicativi",tagline:"Bakery & caffetteria, a due passi dalla Torre",hours:"Aperto tutti i giorni",scrollHint:"Scorri per il menù",fAll:"Tutto",fSweet:"Dolce",fSavory:"Salato",fFit:"Fit",fGf:"Senza glutine",fVegan:"Vegan",catBakery:"Bakery & Dolce",catSavory:"Salato & Brunch",catCoffee:"Caffetteria",legendText:"Tocca un piatto per aprire ingredienti e allergeni; «Scheda completa» mostra tutti i dettagli. Segnala al banco eventuali allergie o intolleranze.",emptyText:"Nessun piatto corrisponde a questo filtro.",footerNote:"Menù digitale — i prezzi di questa demo sono segnaposto.",proposalNote:"Demo realizzata come proposta — non è il menù ufficiale del locale.",ingredientsLabel:"Ingredienti",allergensLabel:"Allergeni",allergenNone:"Nessun allergene principale",allergenHas:"Contiene:",photoNote:"foto reale del piatto",more:"Scheda completa",langToast:"Lingua: Italiano",items:"voci"},
+ en:{demoBanner:"Unofficial demo — sample proposal, indicative prices",tagline:"Bakery & coffee bar, steps from the Leaning Tower",hours:"Open every day",scrollHint:"Scroll for the menu",fAll:"All",fSweet:"Sweet",fSavory:"Savoury",fFit:"Fit",fGf:"Gluten-free",fVegan:"Vegan",catBakery:"Bakery & Sweet",catSavory:"Savoury & Brunch",catCoffee:"Coffee Bar",legendText:"Tap a dish to open ingredients and allergens; “Full card” shows every detail. Please tell our staff about any allergies or intolerances.",emptyText:"No items match this filter.",footerNote:"Digital menu — prices in this demo are placeholders.",proposalNote:"Demo built as a proposal — this is not the venue's official menu.",ingredientsLabel:"Ingredients",allergensLabel:"Allergens",allergenNone:"No major allergens",allergenHas:"Contains:",photoNote:"real photo of the dish",more:"Full card",langToast:"Language: English",items:"items"},
+ fr:{demoBanner:"Démo non officielle — proposition d'exemple, prix indicatifs",tagline:"Boulangerie & café, à deux pas de la Tour",hours:"Ouvert tous les jours",scrollHint:"Faites défiler pour le menu",fAll:"Tout",fSweet:"Sucré",fSavory:"Salé",fFit:"Fit",fGf:"Sans gluten",fVegan:"Végan",catBakery:"Boulangerie & Sucré",catSavory:"Salé & Brunch",catCoffee:"Café",legendText:"Touchez un plat pour voir ingrédients et allergènes ; « Fiche complète » affiche tous les détails. Signalez toute allergie au comptoir.",emptyText:"Aucun plat ne correspond à ce filtre.",footerNote:"Menu numérique — les prix de cette démo sont provisoires.",proposalNote:"Démo réalisée comme proposition — ce n'est pas le menu officiel.",ingredientsLabel:"Ingrédients",allergensLabel:"Allergènes",allergenNone:"Aucun allergène majeur",allergenHas:"Contient :",photoNote:"photo réelle du plat",more:"Fiche complète",langToast:"Langue : Français",items:"articles"},
+ de:{demoBanner:"Inoffizielle Demo — Beispielvorschlag, Richtpreise",tagline:"Bäckerei & Caffè, wenige Schritte vom Schiefen Turm",hours:"Täglich geöffnet",scrollHint:"Scrollen für die Karte",fAll:"Alles",fSweet:"Süß",fSavory:"Herzhaft",fFit:"Fit",fGf:"Glutenfrei",fVegan:"Vegan",catBakery:"Bäckerei & Süßes",catSavory:"Herzhaft & Brunch",catCoffee:"Kaffeebar",legendText:"Tippen Sie auf ein Gericht für Zutaten und Allergene; „Vollständige Karte“ zeigt alle Details. Bitte informieren Sie uns über Allergien.",emptyText:"Keine Gerichte entsprechen diesem Filter.",footerNote:"Digitale Speisekarte — Preise in dieser Demo sind Platzhalter.",proposalNote:"Demo als Vorschlag — nicht die offizielle Karte des Lokals.",ingredientsLabel:"Zutaten",allergensLabel:"Allergene",allergenNone:"Keine Hauptallergene",allergenHas:"Enthält:",photoNote:"echtes Foto des Gerichts",more:"Vollständige Karte",langToast:"Sprache: Deutsch",items:"Einträge"},
+ es:{demoBanner:"Demo no oficial — propuesta de muestra, precios orientativos",tagline:"Panadería & cafetería, a pocos pasos de la Torre",hours:"Abierto todos los días",scrollHint:"Desliza para ver el menú",fAll:"Todo",fSweet:"Dulce",fSavory:"Salado",fFit:"Fit",fGf:"Sin gluten",fVegan:"Vegano",catBakery:"Bakery & Dulce",catSavory:"Salado & Brunch",catCoffee:"Cafetería",legendText:"Toca un plato para ver ingredientes y alérgenos; «Ficha completa» muestra todos los detalles. Informa al personal de cualquier alergia.",emptyText:"Ningún plato coincide con este filtro.",footerNote:"Menú digital — los precios de esta demo son provisionales.",proposalNote:"Demo creada como propuesta — no es el menú oficial del local.",ingredientsLabel:"Ingredientes",allergensLabel:"Alérgenos",allergenNone:"Sin alérgenos principales",allergenHas:"Contiene:",photoNote:"foto real del plato",more:"Ficha completa",langToast:"Idioma: Español",items:"platos"},
+ pt:{demoBanner:"Demo não oficial — proposta de amostra, preços indicativos",tagline:"Padaria & café, a poucos passos da Torre",hours:"Aberto todos os dias",scrollHint:"Deslize para o menu",fAll:"Tudo",fSweet:"Doce",fSavory:"Salgado",fFit:"Fit",fGf:"Sem glúten",fVegan:"Vegano",catBakery:"Bakery & Doce",catSavory:"Salgado & Brunch",catCoffee:"Cafetaria",legendText:"Toque num prato para ver ingredientes e alergénios; «Ficha completa» mostra todos os detalhes. Informe o pessoal sobre alergias.",emptyText:"Nenhum prato corresponde a este filtro.",footerNote:"Menu digital — os preços desta demo são provisórios.",proposalNote:"Demo criada como proposta — não é o menu oficial.",ingredientsLabel:"Ingredientes",allergensLabel:"Alergénios",allergenNone:"Sem alergénios principais",allergenHas:"Contém:",photoNote:"foto real do prato",more:"Ficha completa",langToast:"Idioma: Português",items:"itens"},
+ ru:{demoBanner:"Неофициальная демо-версия — пример предложения, цены ориентировочные",tagline:"Пекарня и кофейня в двух шагах от Пизанской башни",hours:"Открыто ежедневно",scrollHint:"Листайте вниз к меню",fAll:"Всё",fSweet:"Сладкое",fSavory:"Солёное",fFit:"Фит",fGf:"Без глютена",fVegan:"Веган",catBakery:"Выпечка и сладкое",catSavory:"Несладкое и бранч",catCoffee:"Кофейня",legendText:"Нажмите на блюдо, чтобы увидеть состав и аллергены; «Полная карточка» покажет все детали. Сообщите персоналу об аллергиях.",emptyText:"Нет блюд по этому фильтру.",footerNote:"Цифровое меню — цены в демо условные.",proposalNote:"Демо создано как предложение — это не официальное меню.",ingredientsLabel:"Состав",allergensLabel:"Аллергены",allergenNone:"Основных аллергенов нет",allergenHas:"Содержит:",photoNote:"реальное фото блюда",more:"Полная карточка",langToast:"Язык: Русский",items:"позиций"},
+ ar:{demoBanner:"عرض تجريبي غير رسمي — نموذج مقترح، الأسعار تقريبية",tagline:"مخبز ومقهى على بُعد خطوات من برج بيزا",hours:"مفتوح يوميًا",scrollHint:"مرّر لعرض القائمة",fAll:"الكل",fSweet:"حلو",fSavory:"مالح",fFit:"فِت",fGf:"خالٍ من الغلوتين",fVegan:"نباتي",catBakery:"المخبوزات والحلو",catSavory:"المالح والبرنش",catCoffee:"المقهى",legendText:"اضغط على الطبق لعرض المكوّنات ومسببات الحساسية؛ «البطاقة الكاملة» تعرض كل التفاصيل. يُرجى إبلاغ الموظفين بأي حساسية.",emptyText:"لا توجد أطباق مطابقة لهذا الفلتر.",footerNote:"قائمة رقمية — الأسعار في هذا العرض مؤقتة.",proposalNote:"عرض تجريبي كمقترح — ليست القائمة الرسمية للمحل.",ingredientsLabel:"المكوّنات",allergensLabel:"مسببات الحساسية",allergenNone:"لا تحتوي على مسببات حساسية رئيسية",allergenHas:"يحتوي على:",photoNote:"صورة حقيقية للطبق",more:"البطاقة الكاملة",langToast:"اللغة: العربية",items:"عنصر"},
+ zh:{demoBanner:"非官方演示 — 方案示例,价格仅供参考",tagline:"烘焙与咖啡,距比萨斜塔仅几步",hours:"每日营业",scrollHint:"向下滑动查看菜单",fAll:"全部",fSweet:"甜食",fSavory:"咸食",fFit:"轻食",fGf:"无麸质",fVegan:"纯素",catBakery:"烘焙与甜点",catSavory:"咸食与早午餐",catCoffee:"咖啡",legendText:"点击菜品查看原料与过敏原;“完整卡片”显示全部详情。如有过敏请告知店员。",emptyText:"没有符合此筛选的菜品。",footerNote:"电子菜单 — 本演示中的价格为示例。",proposalNote:"本演示为提案 — 并非本店官方菜单。",ingredientsLabel:"原料",allergensLabel:"过敏原",allergenNone:"不含主要过敏原",allergenHas:"含有:",photoNote:"菜品实拍照片",more:"完整卡片",langToast:"语言:中文",items:"项"},
+ ja:{demoBanner:"非公式デモ — 提案サンプル、価格は目安です",tagline:"ベーカリー&カフェ、ピサの斜塔からすぐ",hours:"毎日営業",scrollHint:"スクロールしてメニューへ",fAll:"すべて",fSweet:"スイート",fSavory:"塩味",fFit:"フィット",fGf:"グルテンフリー",fVegan:"ヴィーガン",catBakery:"ベーカリー&スイート",catSavory:"セイボリー&ブランチ",catCoffee:"カフェ",legendText:"料理をタップすると材料とアレルゲンが開きます。「詳細カード」で全情報を表示。アレルギーはスタッフへ。",emptyText:"この条件に合うメニューはありません。",footerNote:"デジタルメニュー — デモの価格は仮のものです。",proposalNote:"提案用デモ — 店舗の公式メニューではありません。",ingredientsLabel:"材料",allergensLabel:"アレルゲン",allergenNone:"主要アレルゲンなし",allergenHas:"含有:",photoNote:"料理の実際の写真",more:"詳細カード",langToast:"言語:日本語",items:"品"}
+};
+
+const NUT={
+ it:{kcal:"kcal",per:"a porzione",pro:"Proteine",carb:"Carboidrati",fat:"Grassi",note:"Valori indicativi, da confermare con il locale."},
+ en:{kcal:"kcal",per:"per serving",pro:"Protein",carb:"Carbs",fat:"Fat",note:"Indicative values, to be confirmed by the venue."},
+ fr:{kcal:"kcal",per:"par portion",pro:"Protéines",carb:"Glucides",fat:"Lipides",note:"Valeurs indicatives, à confirmer par l'établissement."},
+ de:{kcal:"kcal",per:"pro Portion",pro:"Eiweiß",carb:"Kohlenhydrate",fat:"Fett",note:"Richtwerte, vom Lokal zu bestätigen."},
+ es:{kcal:"kcal",per:"por ración",pro:"Proteínas",carb:"Carbohidratos",fat:"Grasas",note:"Valores orientativos, a confirmar por el local."},
+ pt:{kcal:"kcal",per:"por dose",pro:"Proteínas",carb:"Hidratos",fat:"Gorduras",note:"Valores indicativos, a confirmar pelo estabelecimento."},
+ ru:{kcal:"ккал",per:"на порцию",pro:"Белки",carb:"Углеводы",fat:"Жиры",note:"Ориентировочные значения, уточняйте у заведения."},
+ ar:{kcal:"سعرة",per:"للحصة",pro:"بروتين",carb:"كربوهيدرات",fat:"دهون",note:"قيم تقريبية، يؤكدها المحل."},
+ zh:{kcal:"千卡",per:"每份",pro:"蛋白质",carb:"碳水",fat:"脂肪",note:"参考值,以店内确认为准。"},
+ ja:{kcal:"kcal",per:"1人前",pro:"タンパク質",carb:"炭水化物",fat:"脂質",note:"目安の数値。店舗にてご確認ください。"}
+};
+
+/* nomi dei piatti e varianti, tradotti */
+const N={
+ croissant:{it:"Croissant",en:"Croissant",fr:"Croissant",de:"Croissant",es:"Cruasán",pt:"Croissant",ru:"Круассан",ar:"كرواسون",zh:"牛角面包",ja:"クロワッサン"},
+ croissantV:{it:"vuoto · crema · marmellata · Nutella · integrale",en:"plain · custard · jam · Nutella · wholemeal",fr:"nature · crème · confiture · Nutella · complet",de:"pur · Creme · Marmelade · Nutella · Vollkorn",es:"vacío · crema · mermelada · Nutella · integral",pt:"simples · creme · compota · Nutella · integral",ru:"пустой · крем · джем · Nutella · цельнозерновой",ar:"سادة · كريمة · مربى · نوتيلا · حبوب كاملة",zh:"原味 · 奶油 · 果酱 · Nutella · 全麦",ja:"プレーン · カスタード · ジャム · ヌテラ · 全粒粉"},
+ croissantSuper:{it:"Croissant super farcito",en:"Extra-filled croissant",fr:"Croissant ultra-garni",de:"Extra gefülltes Croissant",es:"Cruasán superrelleno",pt:"Croissant super recheado",ru:"Круассан с двойной начинкой",ar:"كرواسون محشو جدًا",zh:"超级夹心牛角包",ja:"たっぷりクロワッサン"},
+ croissantSuperV:{it:"Nutella e pistacchio",en:"Nutella and pistachio",fr:"Nutella et pistache",de:"Nutella und Pistazie",es:"Nutella y pistacho",pt:"Nutella e pistache",ru:"Nutella и фисташка",ar:"نوتيلا وفستق",zh:"Nutella 与开心果",ja:"ヌテラ&ピスタチオ"},
+ saccottino:{it:"Saccottino al cioccolato",en:"Chocolate pastry roll",fr:"Pain au chocolat",de:"Schokocroissant",es:"Napolitana de chocolate",pt:"Saquinho de chocolate",ru:"Булочка с шоколадом",ar:"فطيرة بالشوكولاتة",zh:"巧克力酥卷",ja:"チョコパン"},
+ saccottinoDoppio:{it:"Doppio saccottino",en:"Double chocolate pastry",fr:"Double pain au chocolat",de:"Doppeltes Schokocroissant",es:"Napolitana doble",pt:"Saquinho duplo",ru:"Двойная булочка с шоколадом",ar:"فطيرة شوكولاتة مزدوجة",zh:"双层巧克力酥",ja:"ダブルチョコパン"},
+ danese:{it:"Danese",en:"Danish pastry",fr:"Viennoiserie danoise",de:"Plunder",es:"Pasta danesa",pt:"Pastel dinamarquês",ru:"Датская слойка",ar:"معجنات دانماركية",zh:"丹麦酥",ja:"デニッシュ"},
+ daneseV:{it:"crema e frutta",en:"custard and fruit",fr:"crème et fruits",de:"Creme und Obst",es:"crema y fruta",pt:"creme e fruta",ru:"крем и фрукты",ar:"كريمة وفواكه",zh:"奶油与水果",ja:"カスタード&フルーツ"},
+ brownie:{it:"Brownie",en:"Brownie",fr:"Brownie",de:"Brownie",es:"Brownie",pt:"Brownie",ru:"Брауни",ar:"براوني",zh:"布朗尼",ja:"ブラウニー"},
+ cookieChoc:{it:"Biscotto gocce di cioccolato",en:"Chocolate chip cookie",fr:"Cookie aux pépites de chocolat",de:"Schokodrops-Cookie",es:"Galleta con pepitas de chocolate",pt:"Bolacha com pepitas de chocolate",ru:"Печенье с шоколадной крошкой",ar:"بسكويت برقائق الشوكولاتة",zh:"巧克力豆饼干",ja:"チョコチップクッキー"},
+ cookieBlue:{it:"Biscotto ai mirtilli",en:"Blueberry cookie",fr:"Cookie aux myrtilles",de:"Heidelbeer-Cookie",es:"Galleta de arándanos",pt:"Bolacha de mirtilo",ru:"Печенье с черникой",ar:"بسكويت بالتوت الأزرق",zh:"蓝莓饼干",ja:"ブルーベリークッキー"},
+ cookieV:{it:"piccolo / grande",en:"small / large",fr:"petit / grand",de:"klein / groß",es:"pequeña / grande",pt:"pequena / grande",ru:"маленькое / большое",ar:"صغير / كبير",zh:"小 / 大",ja:"小 / 大"},
+ cantucci:{it:"Cantucci",en:"Cantucci (almond biscotti)",fr:"Cantucci (biscotti aux amandes)",de:"Cantucci (Mandelgebäck)",es:"Cantucci (biscotti de almendra)",pt:"Cantucci (biscoitos de amêndoa)",ru:"Кантуччи (миндальное печенье)",ar:"كانتوتشي (بسكويت باللوز)",zh:"杏仁脆饼 Cantucci",ja:"カントゥッチ(アーモンドビスコッティ)"},
+ pancake:{it:"Pancake",en:"Pancakes",fr:"Pancakes",de:"Pancakes",es:"Tortitas",pt:"Panquecas",ru:"Панкейки",ar:"بان كيك",zh:"松饼",ja:"パンケーキ"},
+ pancakeV1:{it:"Nutella, noci e banana",en:"Nutella, walnuts and banana",fr:"Nutella, noix et banane",de:"Nutella, Walnüsse und Banane",es:"Nutella, nueces y plátano",pt:"Nutella, nozes e banana",ru:"Nutella, грецкие орехи и банан",ar:"نوتيلا وجوز وموز",zh:"Nutella、核桃与香蕉",ja:"ヌテラ、くるみ、バナナ"},
+ pancakeV2:{it:"sciroppo d'acero e frutta",en:"maple syrup and fruit",fr:"sirop d'érable et fruits",de:"Ahornsirup und Obst",es:"sirope de arce y fruta",pt:"xarope de ácer e fruta",ru:"кленовый сироп и фрукты",ar:"شراب القيقب وفواكه",zh:"枫糖浆与水果",ja:"メープルシロップ&フルーツ"},
+ porridge:{it:"Porridge componibile",en:"Build-your-own porridge",fr:"Porridge à composer",de:"Porridge zum Zusammenstellen",es:"Porridge a tu gusto",pt:"Papas de aveia à sua escolha",ru:"Каша-конструктор",ar:"عصيدة الشوفان حسب اختيارك",zh:"自选燕麦粥",ja:"カスタムポリッジ"},
+ bagel:{it:"Bagel",en:"Bagel",fr:"Bagel",de:"Bagel",es:"Bagel",pt:"Bagel",ru:"Бейгл",ar:"بيغل",zh:"贝果",ja:"ベーグル"},
+ bagelV:{it:"salmone e lattuga",en:"salmon and lettuce",fr:"saumon et laitue",de:"Lachs und Salat",es:"salmón y lechuga",pt:"salmão e alface",ru:"лосось и салат",ar:"سلمون وخس",zh:"三文鱼与生菜",ja:"サーモン&レタス"},
+ omelette:{it:"Omelette componibile",en:"Build-your-own omelette",fr:"Omelette à composer",de:"Omelett zum Zusammenstellen",es:"Tortilla a tu gusto",pt:"Omelete à sua escolha",ru:"Омлет-конструктор",ar:"أومليت حسب اختيارك",zh:"自选煎蛋卷",ja:"カスタムオムレツ"},
+ panini:{it:"Panini piccoli",en:"Mini panini",fr:"Petits panini",de:"Kleine Panini",es:"Mini paninis",pt:"Mini paninis",ru:"Мини-панини",ar:"سندويشات صغيرة",zh:"迷你帕尼尼",ja:"ミニパニーニ"},
+ paniniV:{it:"crudo o cotto e formaggio",en:"cured or cooked ham and cheese",fr:"jambon cru ou cuit et fromage",de:"Roh- oder Kochschinken und Käse",es:"jamón serrano o cocido y queso",pt:"presunto cru ou fiambre e queijo",ru:"сыровяленая или варёная ветчина и сыр",ar:"بروشوتو نيء أو مطبوخ وجبن",zh:"生/熟火腿配奶酪",ja:"生ハムまたはハム&チーズ"},
+ tramezzino:{it:"Tramezzino",en:"Tramezzino (soft sandwich)",fr:"Tramezzino (sandwich moelleux)",de:"Tramezzino (weiches Sandwich)",es:"Tramezzino (sándwich blando)",pt:"Tramezzino (sanduíche macia)",ru:"Трамедзино (мягкий сэндвич)",ar:"ترامتسينو (سندويش طري)",zh:"意式软三明治",ja:"トラメッツィーノ(ソフトサンド)"},
+ espresso:{it:"Espresso / Macchiato",en:"Espresso / Macchiato",fr:"Expresso / Macchiato",de:"Espresso / Macchiato",es:"Espresso / Macchiato",pt:"Espresso / Macchiato",ru:"Эспрессо / Макиато",ar:"إسبريسو / ماكياتو",zh:"浓缩咖啡 / 玛奇朵",ja:"エスプレッソ / マキアート"},
+ cappuccino:{it:"Cappuccino",en:"Cappuccino",fr:"Cappuccino",de:"Cappuccino",es:"Capuchino",pt:"Cappuccino",ru:"Капучино",ar:"كابتشينو",zh:"卡布奇诺",ja:"カプチーノ"},
+ cappVeg:{it:"Cappuccino veg",en:"Plant-based cappuccino",fr:"Cappuccino végétal",de:"Veganer Cappuccino",es:"Capuchino vegetal",pt:"Cappuccino vegetal",ru:"Веган-капучино",ar:"كابتشينو نباتي",zh:"植物奶卡布奇诺",ja:"植物性カプチーノ"},
+ cappVegV:{it:"soia o avena",en:"soy or oat",fr:"soja ou avoine",de:"Soja oder Hafer",es:"soja o avena",pt:"soja ou aveia",ru:"соя или овёс",ar:"صويا أو شوفان",zh:"豆奶或燕麦奶",ja:"豆乳またはオーツ"},
+ americano:{it:"Caffè americano",en:"Americano",fr:"Café américain",de:"Caffè Americano",es:"Café americano",pt:"Café americano",ru:"Американо",ar:"قهوة أمريكانو",zh:"美式咖啡",ja:"アメリカーノ"},
+ tea:{it:"Tè e infusi",en:"Teas and infusions",fr:"Thés et infusions",de:"Tee und Kräutertee",es:"Tés e infusiones",pt:"Chás e infusões",ru:"Чай и травяные настои",ar:"شاي وأعشاب",zh:"茶与花草茶",ja:"お茶・ハーブティー"},
+ juice:{it:"Spremuta d'arancia",en:"Fresh orange juice",fr:"Jus d'orange pressé",de:"Frisch gepresster Orangensaft",es:"Zumo de naranja natural",pt:"Sumo de laranja natural",ru:"Свежевыжатый апельсиновый сок",ar:"عصير برتقال طازج",zh:"鲜榨橙汁",ja:"フレッシュオレンジジュース"},
+ water:{it:"Acqua 50cl",en:"Water 50cl",fr:"Eau 50cl",de:"Wasser 50cl",es:"Agua 50cl",pt:"Água 50cl",ru:"Вода 0,5 л",ar:"ماء 50 سل",zh:"矿泉水 500ml",ja:"水 500ml"},
+ sodas:{it:"Bibite",en:"Soft drinks",fr:"Sodas",de:"Softdrinks",es:"Refrescos",pt:"Refrigerantes",ru:"Прохладительные напитки",ar:"مشروبات غازية",zh:"汽水",ja:"ソフトドリンク"}
+};
+
+const ING={
+ flour:{it:"farina",en:"flour",fr:"farine",de:"Mehl",es:"harina",pt:"farinha",ru:"мука",ar:"دقيق",zh:"面粉",ja:"小麦粉"},
+ wholewheat:{it:"farina integrale (variante)",en:"wholemeal flour (option)",fr:"farine complète (option)",de:"Vollkornmehl (Variante)",es:"harina integral (opción)",pt:"farinha integral (opção)",ru:"цельнозерновая мука (вариант)",ar:"دقيق كامل (خيار)",zh:"全麦面粉(可选)",ja:"全粒粉(選択可)"},
+ butter:{it:"burro",en:"butter",fr:"beurre",de:"Butter",es:"mantequilla",pt:"manteiga",ru:"сливочное масло",ar:"زبدة",zh:"黄油",ja:"バター"},
+ sugar:{it:"zucchero",en:"sugar",fr:"sucre",de:"Zucker",es:"azúcar",pt:"açúcar",ru:"сахар",ar:"سكر",zh:"糖",ja:"砂糖"},
+ egg:{it:"uova",en:"eggs",fr:"œufs",de:"Eier",es:"huevos",pt:"ovos",ru:"яйца",ar:"بيض",zh:"鸡蛋",ja:"卵"},
+ milk:{it:"latte",en:"milk",fr:"lait",de:"Milch",es:"leche",pt:"leite",ru:"молоко",ar:"حليب",zh:"牛奶",ja:"牛乳"},
+ cream:{it:"crema pasticcera",en:"custard",fr:"crème pâtissière",de:"Vanillecreme",es:"crema pastelera",pt:"creme de pasteleiro",ru:"заварной крем",ar:"كريمة",zh:"卡仕达酱",ja:"カスタード"},
+ jam:{it:"marmellata",en:"jam",fr:"confiture",de:"Marmelade",es:"mermelada",pt:"compota",ru:"джем",ar:"مربى",zh:"果酱",ja:"ジャム"},
+ chocolate:{it:"cioccolato",en:"chocolate",fr:"chocolat",de:"Schokolade",es:"chocolate",pt:"chocolate",ru:"шоколад",ar:"شوكولاتة",zh:"巧克力",ja:"チョコレート"},
+ chocChips:{it:"gocce di cioccolato",en:"chocolate chips",fr:"pépites de chocolat",de:"Schokodrops",es:"pepitas de chocolate",pt:"pepitas de chocolate",ru:"шоколадная крошка",ar:"رقائق شوكولاتة",zh:"巧克力豆",ja:"チョコチップ"},
+ blueberries:{it:"mirtilli",en:"blueberries",fr:"myrtilles",de:"Heidelbeeren",es:"arándanos",pt:"mirtilos",ru:"черника",ar:"توت أزرق",zh:"蓝莓",ja:"ブルーベリー"},
+ pistachio:{it:"crema di pistacchio",en:"pistachio cream",fr:"crème de pistache",de:"Pistaziencreme",es:"crema de pistacho",pt:"creme de pistache",ru:"фисташковая паста",ar:"كريمة الفستق",zh:"开心果酱",ja:"ピスタチオクリーム"},
+ hazelnutCream:{it:"Nutella / crema di nocciole",en:"Nutella / hazelnut spread",fr:"Nutella / pâte à tartiner",de:"Nutella / Nusscreme",es:"Nutella / crema de avellanas",pt:"Nutella / creme de avelã",ru:"Nutella / ореховая паста",ar:"نوتيلا / كريمة البندق",zh:"Nutella 榛子酱",ja:"ヌテラ/ヘーゼルナッツクリーム"},
+ walnuts:{it:"noci",en:"walnuts",fr:"noix",de:"Walnüsse",es:"nueces",pt:"nozes",ru:"грецкие орехи",ar:"جوز",zh:"核桃",ja:"くるみ"},
+ banana:{it:"banana",en:"banana",fr:"banane",de:"Banane",es:"plátano",pt:"banana",ru:"банан",ar:"موز",zh:"香蕉",ja:"バナナ"},
+ mapleSyrup:{it:"sciroppo d'acero",en:"maple syrup",fr:"sirop d'érable",de:"Ahornsirup",es:"sirope de arce",pt:"xarope de ácer",ru:"кленовый сироп",ar:"شراب القيقب",zh:"枫糖浆",ja:"メープルシロップ"},
+ almonds:{it:"mandorle",en:"almonds",fr:"amandes",de:"Mandeln",es:"almendras",pt:"amêndoas",ru:"миндаль",ar:"لوز",zh:"杏仁",ja:"アーモンド"},
+ oats:{it:"fiocchi d'avena",en:"oat flakes",fr:"flocons d'avoine",de:"Haferflocken",es:"copos de avena",pt:"flocos de aveia",ru:"овсяные хлопья",ar:"شوفان",zh:"燕麦片",ja:"オートミール"},
+ toppingsChoice:{it:"topping a scelta",en:"your choice of toppings",fr:"garnitures au choix",de:"Toppings nach Wahl",es:"toppings a elegir",pt:"coberturas à escolha",ru:"топпинги на выбор",ar:"إضافات حسب الاختيار",zh:"配料任选",ja:"トッピング自由"},
+ fruit:{it:"frutta fresca",en:"fresh fruit",fr:"fruits frais",de:"frisches Obst",es:"fruta fresca",pt:"fruta fresca",ru:"свежие фрукты",ar:"فواكه طازجة",zh:"新鲜水果",ja:"フレッシュフルーツ"},
+ orange:{it:"arance fresche",en:"fresh oranges",fr:"oranges fraîches",de:"frische Orangen",es:"naranjas frescas",pt:"laranjas frescas",ru:"свежие апельсины",ar:"برتقال طازج",zh:"鲜橙",ja:"フレッシュオレンジ"},
+ bagel:{it:"bagel",en:"bagel",fr:"bagel",de:"Bagel",es:"bagel",pt:"bagel",ru:"бейгл",ar:"بيغل",zh:"贝果",ja:"ベーグル"},
+ lettuce:{it:"lattuga",en:"lettuce",fr:"laitue",de:"Salat",es:"lechuga",pt:"alface",ru:"салат латук",ar:"خس",zh:"生菜",ja:"レタス"},
+ salmon:{it:"salmone",en:"salmon",fr:"saumon",de:"Lachs",es:"salmón",pt:"salmão",ru:"лосось",ar:"سلمون",zh:"三文鱼",ja:"サーモン"},
+ bread:{it:"pane",en:"bread",fr:"pain",de:"Brot",es:"pan",pt:"pão",ru:"хлеб",ar:"خبز",zh:"面包",ja:"パン"},
+ tramBread:{it:"pane per tramezzini",en:"soft sandwich bread",fr:"pain de mie",de:"Toastbrot",es:"pan de molde",pt:"pão de forma",ru:"тостовый хлеб",ar:"خبز طري",zh:"三明治面包",ja:"サンドイッチパン"},
+ hamCrudo:{it:"prosciutto crudo (maiale)",en:"cured ham (pork)",fr:"jambon cru (porc)",de:"Rohschinken (Schwein)",es:"jamón serrano (cerdo)",pt:"presunto cru (porco)",ru:"сыровяленая ветчина (свинина)",ar:"بروشوتو نيء (لحم خنزير)",zh:"生火腿(猪肉)",ja:"生ハム(豚肉)"},
+ hamCotto:{it:"prosciutto cotto (maiale)",en:"cooked ham (pork)",fr:"jambon cuit (porc)",de:"Kochschinken (Schwein)",es:"jamón cocido (cerdo)",pt:"fiambre (porco)",ru:"варёная ветчина (свинина)",ar:"لحم خنزير مطبوخ",zh:"熟火腿(猪肉)",ja:"ハム(豚肉)"},
+ cheese:{it:"formaggio",en:"cheese",fr:"fromage",de:"Käse",es:"queso",pt:"queijo",ru:"сыр",ar:"جبن",zh:"奶酪",ja:"チーズ"},
+ coffee:{it:"caffè",en:"coffee",fr:"café",de:"Kaffee",es:"café",pt:"café",ru:"кофе",ar:"قهوة",zh:"咖啡",ja:"コーヒー"},
+ tea:{it:"tè e tisane",en:"teas and infusions",fr:"thés et infusions",de:"Tees und Kräutertees",es:"tés e infusiones",pt:"chás e infusões",ru:"чай и травяные настои",ar:"شاي وأعشاب",zh:"茶与花草茶",ja:"お茶・ハーブティー"},
+ soyMilk:{it:"bevanda di soia",en:"soy milk",fr:"lait de soja",de:"Sojadrink",es:"bebida de soja",pt:"bebida de soja",ru:"соевое молоко",ar:"حليب الصويا",zh:"豆奶",ja:"豆乳"},
+ oatMilk:{it:"bevanda d'avena",en:"oat milk",fr:"lait d'avoine",de:"Haferdrink",es:"bebida de avena",pt:"bebida de aveia",ru:"овсяное молоко",ar:"حليب الشوفان",zh:"燕麦奶",ja:"オーツミルク"},
+ water:{it:"acqua naturale o frizzante",en:"still or sparkling water",fr:"eau plate ou gazeuse",de:"stilles oder sprudelndes Wasser",es:"agua natural o con gas",pt:"água natural ou com gás",ru:"вода с газом или без",ar:"ماء عادي أو فوّار",zh:"矿泉水(含气/不含气)",ja:"水(炭酸あり/なし)"},
+ sodas:{it:"bibite assortite",en:"assorted soft drinks",fr:"sodas variés",de:"verschiedene Softdrinks",es:"refrescos variados",pt:"refrigerantes variados",ru:"прохладительные напитки",ar:"مشروبات غازية متنوعة",zh:"各类汽水",ja:"ソフトドリンク各種"},
+ fillingChoice:{it:"farcitura a scelta",en:"your choice of filling",fr:"garniture au choix",de:"Füllung nach Wahl",es:"relleno a elegir",pt:"recheio à escolha",ru:"начинка на выбор",ar:"حشوة حسب الاختيار",zh:"馅料任选",ja:"お好みの具材"}
+};
+
+const AL={
+ gluten:{it:"glutine",en:"gluten",fr:"gluten",de:"Gluten",es:"gluten",pt:"glúten",ru:"глютен",ar:"غلوتين",zh:"麸质",ja:"グルテン(小麦)"},
+ milk:{it:"latte",en:"milk",fr:"lait",de:"Milch",es:"leche",pt:"leite",ru:"молоко",ar:"حليب",zh:"乳制品",ja:"乳"},
+ egg:{it:"uova",en:"egg",fr:"œuf",de:"Ei",es:"huevo",pt:"ovo",ru:"яйца",ar:"بيض",zh:"蛋",ja:"卵"},
+ nuts:{it:"frutta a guscio",en:"tree nuts",fr:"fruits à coque",de:"Schalenfrüchte",es:"frutos de cáscara",pt:"frutos de casca rija",ru:"орехи",ar:"مكسرات",zh:"坚果",ja:"ナッツ"},
+ fish:{it:"pesce",en:"fish",fr:"poisson",de:"Fisch",es:"pescado",pt:"peixe",ru:"рыба",ar:"سمك",zh:"鱼",ja:"魚"},
+ soy:{it:"soia",en:"soy",fr:"soja",de:"Soja",es:"soja",pt:"soja",ru:"соя",ar:"صويا",zh:"大豆",ja:"大豆"},
+ sesame:{it:"sesamo",en:"sesame",fr:"sésame",de:"Sesam",es:"sésamo",pt:"sésamo",ru:"кунжут",ar:"سمسم",zh:"芝麻",ja:"ごま"}
+};
+
+const NOTES={
+ bakery:{it:"Sforniamo ogni mattina, dolce e salato.",en:"Baked fresh every morning, sweet and savoury.",fr:"Cuit chaque matin, sucré et salé.",de:"Jeden Morgen frisch gebacken, süß und herzhaft.",es:"Horneado cada mañana, dulce y salado.",pt:"Assado fresco todas as manhãs, doce e salgado.",ru:"Свежая выпечка каждое утро — сладкая и несладкая.",ar:"نخبز طازجًا كل صباح، حلو ومالح.",zh:"每天早晨新鲜出炉,甜咸皆有。",ja:"毎朝焼きたて。甘い系も塩味系も。"},
+ salato:{it:"Bagel, omelette e panini, anche da comporre a modo tuo.",en:"Bagels, omelettes and panini — build your own.",fr:"Bagels, omelettes et panini, à composer selon vos envies.",de:"Bagels, Omeletts und Panini — auch zum Zusammenstellen.",es:"Bagels, tortillas y paninis, también a tu gusto.",pt:"Bagels, omeletes e paninis, também à sua escolha.",ru:"Бейглы, омлеты и панини — можно собрать по вкусу.",ar:"بيغل وأومليت وسندويشات — ركّبها على ذوقك.",zh:"贝果、煎蛋卷和帕尼尼,可自由搭配。",ja:"ベーグル、オムレツ、パニーニ — お好みでカスタム可。"},
+ caffetteria:{it:"Anche decaffeinato e con bevande vegetali.",en:"Decaf and plant-based milks available.",fr:"Déca et laits végétaux disponibles.",de:"Auch entkoffeiniert und mit Pflanzendrinks.",es:"También descafeinado y con bebidas vegetales.",pt:"Também descafeinado e com bebidas vegetais.",ru:"Есть декаф и растительное молоко.",ar:"متوفر أيضًا منزوع الكافيين وبحليب نباتي.",zh:"提供低因咖啡与植物奶。",ja:"デカフェ・植物性ミルクもご用意。"}
+};
+
+const MENU=[
+ {id:"bakery",title:"catBakery",note:"bakery",items:[
+   {n:"croissant",v:"croissantV",e:"🥐",p:"1,50",t:["sweet"],ing:["flour","butter","egg","cream","jam","hazelnutCream","wholewheat"],al:["gluten","milk","egg","nuts"]},
+   {n:"croissantSuper",v:"croissantSuperV",e:"🥐",p:"3,50",t:["sweet"],ing:["flour","butter","hazelnutCream","pistachio"],al:["gluten","milk","egg","nuts"]},
+   {n:"saccottino",e:"🍫",p:"1,80",t:["sweet"],ing:["flour","butter","chocolate"],al:["gluten","milk","egg"]},
+   {n:"saccottinoDoppio",e:"🍫",p:"2,80",t:["sweet"],ing:["flour","butter","chocolate"],al:["gluten","milk","egg"]},
+   {n:"danese",v:"daneseV",e:"🥐",p:"2,80",t:["sweet"],ing:["flour","butter","cream","fruit"],al:["gluten","milk","egg"]},
+   {n:"brownie",e:"🍫",p:"3,00",t:["sweet"],ing:["chocolate","butter","egg","sugar","walnuts"],al:["gluten","milk","egg","nuts"]},
+   {n:"cookieChoc",v:"cookieV",e:"🍪",p:"1,20",p2:"2,50",t:["sweet"],ing:["flour","butter","chocChips","sugar"],al:["gluten","milk","egg"]},
+   {n:"cookieBlue",v:"cookieV",e:"🍪",p:"1,20",p2:"2,50",t:["sweet"],ing:["flour","butter","blueberries","sugar"],al:["gluten","milk","egg"]},
+   {n:"cantucci",e:"🍪",p:"2,00",t:["sweet"],ing:["flour","almonds","egg","sugar"],al:["gluten","egg","nuts"]},
+   {n:"pancake",v:"pancakeV1",e:"🥞",p:"6,50",t:["sweet"],ing:["flour","egg","milk","hazelnutCream","walnuts","banana"],al:["gluten","milk","egg","nuts"]},
+   {n:"pancake",v:"pancakeV2",e:"🥞",p:"6,50",t:["sweet"],ing:["flour","egg","milk","mapleSyrup","fruit"],al:["gluten","milk","egg"]},
+   {n:"porridge",e:"🥣",p:"5,00",t:["sweet","fit"],ing:["oats","milk","toppingsChoice"],al:["gluten","milk"],nut:{kcal:320,pro:12,carb:48,fat:8}}
+ ]},
+ {id:"salato",title:"catSavory",note:"salato",items:[
+   {n:"bagel",v:"bagelV",e:"🥯",p:"7,00",t:["savory","fit"],ing:["bagel","salmon","lettuce"],al:["gluten","fish","sesame"],nut:{kcal:410,pro:22,carb:52,fat:12}},
+   {n:"omelette",e:"🍳",p:"6,50",t:["savory","fit","gf"],ing:["egg","toppingsChoice"],al:["egg"],nut:{kcal:260,pro:19,carb:3,fat:19}},
+   {n:"panini",v:"paniniV",e:"🥪",p:"3,00",t:["savory"],ing:["bread","hamCrudo","hamCotto","cheese"],al:["gluten","milk"]},
+   {n:"tramezzino",e:"🥪",p:"3,00",t:["savory"],ing:["tramBread","fillingChoice"],al:["gluten"]}
+ ]},
+ {id:"caffetteria",title:"catCoffee",note:"caffetteria",items:[
+   {n:"espresso",e:"☕",p:"1,30",t:["gf"],ing:["coffee","milk"],al:["milk"]},
+   {n:"cappuccino",e:"☕",p:"1,80",t:["gf"],ing:["coffee","milk"],al:["milk"]},
+   {n:"cappVeg",v:"cappVegV",e:"🌱",p:"2,00",t:["gf","vegan"],ing:["coffee","soyMilk","oatMilk"],al:["soy"]},
+   {n:"americano",e:"☕",p:"1,80",t:["gf","vegan"],ing:["coffee"],al:[]},
+   {n:"tea",e:"🍵",p:"3,00",t:["gf","vegan","fit"],ing:["tea"],al:[]},
+   {n:"juice",e:"🍊",p:"3,50",t:["fit","gf","vegan"],ing:["orange"],al:[],nut:{kcal:110,pro:2,carb:25,fat:0}},
+   {n:"water",e:"💧",p:"1,00",t:["gf","vegan","fit"],ing:["water"],al:[]},
+   {n:"sodas",e:"🥤",p:"2,50",t:["vegan"],ing:["sodas"],al:[]}
+ ]}
+];
+
+/* ---------- stato ---------- */
+let lang="it", filter="all";
+const $=id=>document.getElementById(id);
+const main=$("menu"), emptyMsg=$("empty"), toast=$("toast");
+const T=k=>UI[lang][k]||"";
+const name=it=>N[it.n][lang];
+const variant=it=>it.v?N[it.v][lang]:"";
+const tagHtml=tags=>tags.map(x=>`<span class="tag t-${x}">${T("f"+x[0].toUpperCase()+x.slice(1))}</span>`).join("");
+const allergHtml=al=>al.length?`<span>⚠️</span><div><b>${T("allergenHas")}</b> ${al.map(k=>AL[k][lang]).join(" · ")}</div>`:`<span>✓</span><div>${T("allergenNone")}</div>`;
+function nutHtml(n){
+  if(!n) return "";
+  const L=NUT[lang];
+  const m=(cls,lab,g,ref)=>`<div class="macro ${cls}"><b>${g} g</b>${lab}<div class="bar"><i style="--w:${Math.min(100,Math.round(g/ref*100))}%"></i></div></div>`;
+  return `<div class="nut"><div class="nut-top"><div class="kcal">${n.kcal}<small>${L.kcal}</small></div><div class="per">${L.per}</div></div>
+    <div class="macros">${m("pro",L.pro,n.pro,40)}${m("carb",L.carb,n.carb,80)}${m("fat",L.fat,n.fat,40)}</div><div class="nut-note">${L.note}</div></div>`;
+}
+
+/* ---------- lingua ---------- */
+const langBtn=$("lang-btn"), langMenu=$("lang-menu");
+LANGS.forEach(([c,l])=>{
+  const b=document.createElement("button"); b.textContent=l; b.setAttribute("role","option"); b.setAttribute("aria-pressed",c==="it"?"true":"false");
+  b.onclick=e=>{e.stopPropagation(); lang=c; langMenu.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+    $("lang-cur").textContent=c.toUpperCase(); toggleLang(false); closeSheet(); render(); showToast(T("langToast"));};
+  langMenu.appendChild(b);
+});
+function toggleLang(force){const o=force??(langBtn.getAttribute("aria-expanded")!=="true"); langBtn.setAttribute("aria-expanded",o); langMenu.classList.toggle("open",o);}
+langBtn.onclick=e=>{e.stopPropagation(); toggleLang();};
+document.addEventListener("click",e=>{ if(!langMenu.contains(e.target)&&e.target!==langBtn) toggleLang(false); });
+langMenu.addEventListener("touchmove",e=>e.stopPropagation(),{passive:true});
+
+/* ---------- toast ---------- */
+let toastT; function showToast(msg){toast.textContent=msg; toast.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>toast.classList.remove("show"),1600);}
+
+/* ---------- render ---------- */
+let observer;
+function render(){
+  document.documentElement.lang=lang; document.documentElement.dir=(lang==="ar")?"rtl":"ltr";
+  document.querySelectorAll("[data-i18n]").forEach(el=>el.textContent=T(el.dataset.i18n));
+  const all=MENU.flatMap(c=>c.items);
+  document.querySelectorAll(".chip").forEach(ch=>{const f=ch.dataset.f; ch.querySelector(".n").textContent=f==="all"?all.length:all.filter(i=>i.t.includes(f)).length;});
+
+  main.innerHTML=""; let total=0;
+  MENU.forEach(cat=>{
+    const vis=cat.items.filter(i=>filter==="all"||i.t.includes(filter));
+    if(!vis.length) return; total+=vis.length;
+    const s=document.createElement("section"); s.id=cat.id;
+    s.innerHTML=`<div class="sec-head"><h2 class="serif">${T(cat.title)}</h2><span class="count">${vis.length} ${T("items")}</span></div><p class="sec-note serif">${NOTES[cat.note][lang]}</p>`;
+    const grid=document.createElement("div"); grid.className="grid";
+    vis.forEach((it,i)=>{
+      const card=document.createElement("article"); card.className="card"; card.style.transitionDelay=(i*45)+"ms";
+      const price=it.p2?`<span>€ ${it.p}</span><span class="p2">€ ${it.p2}</span>`:`<span>€ ${it.p}</span>`;
+      const v=variant(it);
+      card.innerHTML=`
+        <div class="head" role="button" tabindex="0" aria-expanded="false">
+          <div class="thumb">${it.e}</div>
+          <div><div class="title">${name(it)}${v?` <span class="v">· ${v}</span>`:""}</div><div class="sub">${tagHtml(it.t)}</div></div>
+          <div class="price">${price}<svg class="chev" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 8l5 5 5-5"/></svg></div>
+        </div>
+        <div class="body"><div class="body-in">
+          <div class="ing">${it.ing.map((k,j)=>`<span style="transition-delay:${j*40}ms">${ING[k][lang]}</span>`).join("")}</div>
+          <div class="allerg ${it.al.length?"":"none"}">${allergHtml(it.al)}</div>
+          ${nutHtml(it.nut)}
+          <button class="more">${T("more")} →</button>
+        </div></div>`;
+      const head=card.querySelector(".head"), body=card.querySelector(".body");
+      const toggle=()=>{const open=card.classList.toggle("open"); head.setAttribute("aria-expanded",open); body.style.maxHeight=open?body.scrollHeight+"px":"0";};
+      head.onclick=toggle; head.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggle();}};
+      card.querySelector(".more").onclick=e=>{e.stopPropagation(); openSheet(it);};
+      grid.appendChild(card);
+    });
+    s.appendChild(grid); main.appendChild(s);
+  });
+  if(total){const lg=document.createElement("div"); lg.className="legend"; lg.textContent=T("legendText"); main.appendChild(lg);}
+  emptyMsg.classList.toggle("show",!total);
+  if(observer) observer.disconnect();
+  observer=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in"); observer.unobserve(e.target);}}),{threshold:.08});
+  document.querySelectorAll(".card").forEach(c=>observer.observe(c));
+  requestAnimationFrame(()=>{updateTabInk(); updateActiveTab();});
+}
+
+document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{filter=b.dataset.f; document.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false")); render();});
+
+/* ---------- tabs ---------- */
+const tabs=$("tabs"), ink=$("tab-ink");
+function updateTabInk(){const a=tabs.querySelector("a.active")||tabs.querySelector("a"); if(!a) return; ink.style.left=a.offsetLeft+"px"; ink.style.width=a.offsetWidth+"px";}
+function updateActiveTab(){
+  const secs=[...document.querySelectorAll("main section")]; if(!secs.length) return;
+  let cur=secs[0]; secs.forEach(s=>{if(s.getBoundingClientRect().top-130<=0) cur=s;});
+  tabs.querySelectorAll("a").forEach(a=>a.classList.toggle("active",a.dataset.sec===cur.id));
+  const act=tabs.querySelector("a.active"); if(act) act.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"});
+  updateTabInk();
+}
+window.addEventListener("resize",updateTabInk);
+
+/* ---------- scroll ---------- */
+const nav=$("nav"), prog=$("progress");
+window.addEventListener("scroll",()=>{const h=document.documentElement; prog.style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+"%"; nav.classList.toggle("scrolled",h.scrollTop>160); updateActiveTab();},{passive:true});
+
+/* ---------- sheet ---------- */
+const overlay=$("overlay"), sheet=$("sheet");
+function openSheet(it){
+  const v=variant(it);
+  $("sheet-emoji").textContent=it.e;
+  $("sheet-title").innerHTML=name(it)+(v?` <span class="v">· ${v}</span>`:"");
+  $("sheet-price").textContent="€ "+it.p+(it.p2?"  /  € "+it.p2:"");
+  $("sheet-tags").innerHTML=tagHtml(it.t);
+  $("sheet-ings").innerHTML=it.ing.map((k,j)=>`<span style="transition-delay:${j*40}ms">${ING[k][lang]}</span>`).join("");
+  const a=$("sheet-allergens"); a.className="allerg "+(it.al.length?"":"none"); a.innerHTML=allergHtml(it.al);
+  $("sheet-nut").innerHTML=nutHtml(it.nut);
+  overlay.classList.add("open"); sheet.classList.add("open"); document.body.style.overflow="hidden";
+}
+function closeSheet(){overlay.classList.remove("open"); sheet.classList.remove("open"); document.body.style.overflow="";}
+overlay.onclick=closeSheet; $("sheet-close").onclick=closeSheet;
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeSheet(); toggleLang(false);}});
+
+render();
+</script>
+</body>
+</html>
